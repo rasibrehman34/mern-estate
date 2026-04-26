@@ -4,7 +4,7 @@
     currentUser: null,
     error: null,
     loading: false,
- };
+ }; 
 
  const userSclice = createSlice({
     name: 'user',
