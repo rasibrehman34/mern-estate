@@ -22,10 +22,15 @@
             state.error = action.payload;
             state.loading = false;
         },
-  
+        // Action to update user context with new avatar/public_id
+        updateUserSuccess: (state, action) => {
+            state.currentUser = { ...state.currentUser, ...action.payload };
+            state.loading = false;
+            state.error = null;
+        }
     }
  })
 
- export const { signInStart, signInSuccess, signInFailure } = userSclice.actions;
+ export const { signInStart, signInSuccess, signInFailure, updateUserSuccess } = userSclice.actions;
 
  export default userSclice.reducer; 
