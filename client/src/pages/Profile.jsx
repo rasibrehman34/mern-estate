@@ -33,6 +33,9 @@ export default function Profile() {
   // Store the selected file without uploading immediately
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const [userListings, setUserListings] = useState([])
+  const [showListingsError, setShowListingsError] = useState(false)
+
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -173,6 +176,21 @@ export default function Profile() {
     }
   };
 
+  const handleShowListings = async () => {
+    try {
+      const res = await fetch(`/api/user/listings/${currentUser._id}`)
+      const data = await res.json();
+      if (data.success === false) {
+        showListingsError(true)
+        return;
+      }
+      setUserListings(data)
+
+    } catch (error) {
+      showListingsError(true)
+    }
+  }
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -264,6 +282,33 @@ export default function Profile() {
       <p className="text-green-700 mt-5">
         {updateSuccess ? "User is update successfully!" : ""}
       </p>
+
+      <button onClick={handleShowListings} className="text-green-700 w-full">Show Listing</button>
+      <p className="text-red-600 mt-5">
+        {showListingsError ? "Error showing listings" : ""}
+      </p>
+
+      {userListings && userListings.length > 0 &&
+      <div className="">
+        <h1 className="text-center my-7 text-2xl">Your Listings</h1>
+        {userListings.map((listing) => (
+          <div key={listing._id} className="border rounded-lg p-3 gap-4 flex justify-between items-center">
+            <Link to={`/listing/${listing._id}`}>
+              <img src={listing.imageUrls[0]} alt="listing image" className="h-16 w-16 object-contain rounded-lg" />
+            </Link>
+            <Link className=" text-slate-700 font-semiboldhover:underline truncate flex-1 " to={`/listing/${listing._id}`}>
+              <p >{listing.name}</p>
+            </Link>
+
+            <div className="flex flex-col items-center gap-2" >
+              <button className="text-red-700 cursor-pointer">Delete</button>
+              <button className="text-green-700 cursor-pointer">Edit</button>
+            </div>
+
+          </div>
+        ))}
+
+      </div>}
     </div>
   );
 }
