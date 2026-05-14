@@ -318,7 +318,9 @@ export default function Profile() {
 
             <div className="flex flex-col items-center gap-2" >
               <button onClick={()=>handleListingDelete(listing._id)} className="text-red-700 cursor-pointer">Delete</button>
+              <Link  to={`/update-listing/${listing._id}`}>
               <button className="text-green-700 cursor-pointer">Edit</button>
+              </Link>
             </div>
 
           </div>
