@@ -8,6 +8,7 @@ export default function UpdateListing() {
   const params = useParams();  
   const [files, setFiles] = useState([]);
   const [localImages, setLocalImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: "",
@@ -36,7 +37,11 @@ export default function UpdateListing() {
             console.log(data.message)
             return;
         }
-         setFormData(data)
+         setFormData({
+           ...data,
+           imageUrls: data.imageUrls || [],
+         });
+         setExistingImages(data.imageUrls || []);
     }
      
     fetchListing();
@@ -44,7 +49,7 @@ export default function UpdateListing() {
 
   const handleImageSubmit = (e) => {
     e.preventDefault();
-    if (files.length > 0 && files.length + localImages.length < 7) {
+    if (files.length > 0 && files.length + localImages.length + existingImages.length < 7) {
       const newImages = Array.from(files).map((file) => ({
         file,
         url: URL.createObjectURL(file),
@@ -84,6 +89,10 @@ export default function UpdateListing() {
     setLocalImages(localImages.filter((_, i) => i !== index));
   };
 
+  const handleRemoveExistingImage = (index) => {
+    setExistingImages(existingImages.filter((_, i) => i !== index));
+  };
+
   const handleChange = (e) => {
     if (e.target.id === 'sale' || e.target.id === 'rent') {
       setFormData({
@@ -111,7 +120,7 @@ export default function UpdateListing() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      if (localImages.length < 1) return setError("Please upload at least one image")
+      if (existingImages.length + localImages.length < 1) return setError("Please upload at least one image")
       if (+formData.regularPrice < +formData.discountPrice) return setError("Discounted price must be less than regular price")
 
       setLoading(true)
@@ -137,7 +146,7 @@ export default function UpdateListing() {
         },
         body: JSON.stringify({
           ...formData,
-          imageUrls: uploadedUrls,
+          imageUrls: [...existingImages, ...uploadedUrls],
           userRef: currentUser._id,
         }),
       });
@@ -306,6 +315,26 @@ export default function UpdateListing() {
           <p className="text-red-700 text-sm">
             {imageUploadError && imageUploadError}
           </p>
+          {existingImages.length > 0 &&
+            existingImages.map((url, index) => (
+              <div
+                key={`${url}-${index}`}
+                className="flex justify-between p-3 border items-center"
+              >
+                <img
+                  src={url}
+                  alt="listing image"
+                  className="w-20 h-20 object-contain rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveExistingImage(index)}
+                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
           {localImages.length > 0 &&
             localImages.map((img, index) => (
               <div
