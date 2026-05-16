@@ -2,14 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import { useSelector } from "react-redux";
 import "swiper/css";
 import "swiper/css/navigation";
 import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from "react-icons/fa";
+import Contact from "../components/Contact";
 
-export default function Listing() {
+export default function Listing() { 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // const [copied, setCopied] = useState(false); 
+  const {currentUser} = useSelector((state) => state.user);
+  const [contact, setContact] = useState(false); 
   const params = useParams();
   useEffect(() => {
     const fetchListing = async () => {
@@ -38,7 +43,6 @@ export default function Listing() {
 
     fetchListing();
   }, [params.listingId]);
-  console.log(loading);
 
   return (
     <main>
@@ -104,6 +108,10 @@ export default function Listing() {
                 <FaChair className="inline-block text-lg" /> {listing.furnished ? "Furnished" : "Not Furnished"}
               </li>
             </ul>
+            {currentUser && listing.userRef === currentUser._id && !contact && (
+              <button onClick={()=>setContact(true)} className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95">Contact Landlord</button>
+            )}
+            {contact && <Contact listing={listing} />}
           </div>
         </div>
       )}
