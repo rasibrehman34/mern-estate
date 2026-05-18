@@ -1,69 +1,224 @@
-import React from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Search() {
-    return (
-        <div className="flex flex-col md:flex-row">
-            <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen ">
-                <form className="flex flex-col gap-8">
-                    <div className="flex items-center gap-2 ">
-                        <label className="whitespace-nowrap font-semibold ">Search Term:</label>
-                        <input
-                            type="text"
-                            id="searchTerm"
-                            placeholder="Search"
-                            className="rounded-lg bg-white    border p-3 w-full"
-                        />
-                    </div>
-                    <div className="flex gap-2 flex-wrap items-center">
-                        <label className="font-semibold ">Type:</label>
-                        <div className="flex gap-2 ">
-                            <input type="checkbox" id="all" className="w-5" />
-                            <span>Rent & Sale</span>
-                        </div>
-                        <div className="flex gap-2 ">
-                            <input type="checkbox" id="rent" className="w-5" />
-                            <span>Rent</span>
-                        </div>
-                        <div className="flex gap-2 ">
-                            <input type="checkbox" id="sale" className="w-5" />
-                            <span>Sale</span>
-                        </div>
-                        <div className="flex gap-2 ">
-                            <input type="checkbox" id="offer" className="w-5" />
-                            <span>Offer</span>
-                        </div>
-                    </div>
-                    <div className="flex gap-2 flex-wrap items-center">
-                        <label className="font-semibold ">Amenities:</label>
-                        <div className="flex gap-2 ">
-                            <input type="checkbox" id="parking" className="w-5" />
-                            <span>Parking</span>
-                        </div>
-                        <div className="flex gap-2 ">
-                            <input type="checkbox" id="furnished" className="w-5" />
-                            <span>Furnished</span>
-                        </div>
-                   
-                    </div>
+  const navigate = useNavigate();
+  const [sidebardata, setSidebardata] = useState({
+    searchTerm: "",
+    type: "all",
+    parking: false,
+    furnished: false,
+    offer: false,
+    sort: "createdAt",
+    order: "desc",
+  });
 
-                    <div>
-                        <label className="font-semibold">Sort{' '}</label>
-                        <select id="sort_order" className="p-3 rounded-lg bg-white border">
-                            <option value="priceLowHigh">Price: Low to High</option>
-                            <option value="priceHighLow">Price: High to Low</option>
-                            <option value="latest">Newest</option>
-                            <option value="oldest">Oldest</option>
-                        </select>
-                    </div>
-                    <button type="submit" className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 ">
-                        Search
-                    </button>
+  const [loading, setLoading] = useState(false);
+  const [listings, setListings] = useState([]);
+  console.log(listings);
 
-                </form>
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTermFromUrl = urlParams.get("searchTerm");
+    const typeFromUrl = urlParams.get("type");
+    const parkingFromUrl = urlParams.get("parking");
+    const furnishedFromUrl = urlParams.get("furnished");
+    const offerFromUrl = urlParams.get("offer");
+    const sortFromUrl = urlParams.get("sort");
+    const orderFromUrl = urlParams.get("order");
+
+    if (
+      searchTermFromUrl ||
+      typeFromUrl ||
+      parkingFromUrl ||
+      furnishedFromUrl ||
+      offerFromUrl ||
+      sortFromUrl ||
+      orderFromUrl
+    ) {
+      setSidebardata({
+        searchTerm: searchTermFromUrl || "",
+        type: typeFromUrl || "all",
+        parking: parkingFromUrl === "true" ? true : false,
+        furnished: furnishedFromUrl === "true" ? true : false,
+        offer: offerFromUrl === "true" ? true : false,
+        sort: sortFromUrl || "createdAt",
+        order: orderFromUrl || "desc",
+      });
+    }
+
+    const fetchListings = async () => {
+      setLoading(true);
+      const searchQuery = urlParams.toString();
+      const res = await fetch(`/api/listing/get?${searchQuery}`);
+      const data = await res.json();
+      setListings(data);
+      setLoading(false);
+    };
+    fetchListings();
+  }, [location.search]);
+
+  const handleChange = (e) => {
+    const { id, value, checked } = e.target;
+
+    if (id === "all" || id === "rent" || id === "sale") {
+      setSidebardata((prev) => ({
+        ...prev,
+        type: id,
+      }));
+      return;
+    }
+
+    if (id === "searchTerm") {
+      setSidebardata((prev) => ({
+        ...prev,
+        searchTerm: value,
+      }));
+      return;
+    }
+
+    if (id === "parking" || id === "furnished" || id === "offer") {
+      setSidebardata((prev) => ({
+        ...prev,
+        [id]: checked,
+      }));
+      return;
+    }
+
+    if (id === "sort_order") {
+      const [sort, order] = value.split("_");
+      setSidebardata((prev) => ({
+        ...prev,
+        sort: sort || "createdAt",
+        order: order || "desc",
+      }));
+      return;
+    }
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const urlParams = new URLSearchParams();
+    urlParams.set("searchTerm", sidebardata.searchTerm);
+    urlParams.set("type", sidebardata.type);
+    urlParams.set("parking", sidebardata.parking);
+    urlParams.set("furnished", sidebardata.furnished);
+    urlParams.set("offer", sidebardata.offer);
+    urlParams.set("sort", sidebardata.sort);
+    urlParams.set("order", sidebardata.order);
+    const searchQuery = urlParams.toString();
+    navigate(`/search?${searchQuery}`);
+  };
+  return (
+    <div className="flex flex-col md:flex-row">
+      <div className="p-7 border-b md:border-r md:min-h-screen ">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+          <div className="flex items-center gap-2 ">
+            <label className="whitespace-nowrap font-semibold ">
+              Search Term:
+            </label>
+            <input
+              type="text"
+              id="searchTerm"
+              className="rounded-lg bg-white border p-3 w-full"
+              value={sidebardata.searchTerm}
+              onChange={handleChange}
+              placeholder="Search..."
+            />
+          </div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <label className="font-semibold ">Type:</label>
+            <div className="flex gap-2 ">
+              <input
+                type="checkbox"
+                id="all"
+                className="w-5"
+                checked={sidebardata.type === "all"}
+                onChange={handleChange}
+              />
+              <span>Rent & Sale</span>
             </div>
-            <div className="">
-                <h1 className="text-3xl font-semibold border-b p-3 text-slate-700 mt-5">Listing results:</h1>
+            <div className="flex gap-2 ">
+              <input
+                type="checkbox"
+                id="rent"
+                className="w-5"
+                checked={sidebardata.type === "rent"}
+                onChange={handleChange}
+              />
+              <span>Rent</span>
             </div>
-        </div>
-    );
+            <div className="flex gap-2 ">
+              <input
+                type="checkbox"
+                id="sale"
+                className="w-5"
+                checked={sidebardata.type === "sale"}
+                onChange={handleChange}
+              />
+              <span>Sale</span>
+            </div>
+            <div className="flex gap-2 ">
+              <input
+                type="checkbox"
+                id="offer"
+                className="w-5"
+                checked={sidebardata.offer === true}
+                onChange={handleChange}
+              />
+              <span>Offer</span>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <label className="font-semibold ">Amenities:</label>
+            <div className="flex gap-2 ">
+              <input
+                type="checkbox"
+                id="parking"
+                className="w-5"
+                checked={sidebardata.parking === true}
+                onChange={handleChange}
+              />
+              <span>Parking</span>
+            </div>
+            <div className="flex gap-2 ">
+              <input
+                type="checkbox"
+                id="furnished"
+                className="w-5"
+                checked={sidebardata.furnished === true}
+                onChange={handleChange}
+              />
+              <span>Furnished</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="font-semibold">Sort </label>
+            <select
+              onChange={handleChange}
+              value={`${sidebardata.sort}_${sidebardata.order}`}
+              id="sort_order"
+              className="p-3 rounded-lg bg-white border"
+            >
+              <option value="regularPrice_asc">Price: Low to High</option>
+              <option value="regularPrice_desc">Price: High to Low</option>
+              <option value="createdAt_desc">latest</option>
+              <option value="createdAt_asc">Oldest</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 "
+          >
+            Search
+          </button>
+        </form>
+      </div>
+      <div className="">
+        <h1 className="text-3xl font-semibold border-b p-3 text-slate-700 mt-5">
+          Listing results:
+        </h1>
+      </div>
+    </div>
+  );
 }
