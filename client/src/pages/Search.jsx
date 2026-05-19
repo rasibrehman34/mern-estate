@@ -16,7 +16,7 @@ export default function Search() {
 
   const [loading, setLoading] = useState(false);
   const [listings, setListings] = useState([]);
-  console.log(listings);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -50,9 +50,15 @@ export default function Search() {
 
     const fetchListings = async () => {
       setLoading(true);
+      setShowMore(false);
       const searchQuery = urlParams.toString();
       const res = await fetch(`/api/listing/get?${searchQuery}`);
       const data = await res.json();
+      if(data.length > 8){
+        setShowMore(true);
+      }else{
+        setShowMore(false);
+      }
       setListings(data);
       setLoading(false);
     };
@@ -109,6 +115,21 @@ export default function Search() {
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
   };
+
+  const onShowMoreClick = async () => {   
+    const numberOfListings = listings.length;
+    const startIndex = numberOfListings;
+    const urlParams = new URLSearchParams(location.search);
+    urlParams.set("startIndex", startIndex);
+    const searchQuery = urlParams.toString();
+    const res = await fetch(`/api/listing/get?${searchQuery}`);
+    const data = await res.json();
+    if(data.length < 9){
+      setShowMore(false);
+    } 
+    setListings([...listings, ...data]);
+    
+  }
   return (
     <div className="flex flex-col md:flex-row">
       <div className="p-7 border-b md:border-r md:min-h-screen ">
@@ -219,7 +240,7 @@ export default function Search() {
         <h1 className="text-3xl font-semibold border-b p-3 text-slate-700 mt-5">
           Listing results:
         </h1>
-        <div className="p-7 flex flex-wrap gap-10 justify-center  ">
+        <div className="p-7 flex flex-wrap gap-10">
           {!loading && listings.length === 0 && (
             <p className="text-xl text-slate-700">No listings found.</p>
           )}
@@ -230,6 +251,11 @@ export default function Search() {
           )}
 
           {!loading && listings && listings.map((listing) => <ListingItems key={listing._id} listing={listing} />)}
+          {showMore && (
+            <button onClick={onShowMoreClick} className="text-green-700 hover:underline p-7">
+              Show More
+            </button>
+          )}
         </div>
       </div>
     </div>
