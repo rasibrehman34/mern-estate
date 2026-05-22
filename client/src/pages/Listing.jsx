@@ -8,13 +8,13 @@ import "swiper/css/navigation";
 import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from "react-icons/fa";
 import Contact from "../components/Contact";
 
-export default function Listing() { 
+export default function Listing() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // const [copied, setCopied] = useState(false); 
-  const {currentUser} = useSelector((state) => state.user);
-  const [contact, setContact] = useState(false); 
+  const { currentUser } = useSelector((state) => state.user);
+  const [contact, setContact] = useState(false);
   const params = useParams();
   useEffect(() => {
     const fetchListing = async () => {
@@ -96,10 +96,10 @@ export default function Listing() {
             </p>
             <ul className=" text-green-900 font-semibold text-sm flex flex-wrap  flex-between items-center gap-4 sm:gap-6">
               <li className="flex items-center gap-2 whitespace-nowrap  ">
-                <FaBed className="inline-block text-lg" /> {listing.bedrooms > 1 ? `${listing.bedrooms} Beds` : ` ${listing.bedrooms} Bed` }
+                <FaBed className="inline-block text-lg" /> {listing.bedrooms > 1 ? `${listing.bedrooms} Beds` : ` ${listing.bedrooms} Bed`}
               </li>
               <li className="flex items-center gap-2 whitespace-nowrap  ">
-                <FaBath className="inline-block text-lg" /> {listing.bathrooms > 1 ? `${listing.bathrooms} Baths` : ` ${listing.bathrooms} Bath` }
+                <FaBath className="inline-block text-lg" /> {listing.bathrooms > 1 ? `${listing.bathrooms} Baths` : ` ${listing.bathrooms} Bath`}
               </li>
               <li className="flex items-center gap-2 whitespace-nowrap  ">
                 <FaParking className="inline-block text-lg" /> {listing.parking ? "Parking Spot" : "No Parking"}
@@ -109,7 +109,7 @@ export default function Listing() {
               </li>
             </ul>
             {currentUser && listing.userRef === currentUser._id && !contact && (
-              <button onClick={()=>setContact(true)} className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95">Contact Landlord</button>
+              <button onClick={() => setContact(true)} className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95">Contact Landlord</button>
             )}
             {contact && <Contact listing={listing} />}
           </div>
