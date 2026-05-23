@@ -7,6 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking } from "react-icons/fa";
 import Contact from "../components/Contact";
+import { apiFetch } from "../utils/api.js";
 
 export default function Listing() {
   const [listing, setListing] = useState(null);
@@ -25,7 +26,7 @@ export default function Listing() {
       }
       try {
         setLoading(true);
-        const res = await fetch(`/api/listing/get/${params.listingId}`);
+        const res = await apiFetch(`/api/listing/get/${params.listingId}`);
         const data = await res.json();
         if (data.success === false) {
           setError(true);

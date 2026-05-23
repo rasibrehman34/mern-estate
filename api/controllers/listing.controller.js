@@ -1,4 +1,3 @@
-import { TbFlagSearch } from "react-icons/tb";
 import Listing from "../models/listing.model.js";
 import cloudinary from "../utils/cloudinary.js";
 import { errorHandler } from "../utils/error.js";

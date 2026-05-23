@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../utils/api.js";
 
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
@@ -46,7 +47,7 @@ export default function CreateListing() {
       imageFormData.append("image", file);
 
       try {
-        const imgRes = await fetch("/api/listing/upload-image", {
+        const imgRes = await apiFetch("/api/listing/upload-image", {
           method: "POST",
           credentials: "include",
           body: imageFormData,
@@ -114,7 +115,7 @@ export default function CreateListing() {
       }
       setUploading(false);
 
-      const res = await fetch('/api/listing/create', {
+      const res = await apiFetch('/api/listing/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

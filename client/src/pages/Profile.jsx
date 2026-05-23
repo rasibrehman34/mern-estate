@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
+import { apiFetch } from "../utils/api.js";
 import { Link } from 'react-router-dom'
 import { useRef, useState } from "react";
 import {
@@ -61,7 +62,7 @@ export default function Profile() {
 
         // 1. Delete old image from Cloudinary if public_id exists in currentUser
         if (currentUser.avatar_public_id) {
-          await fetch("/api/user/delete-image", {
+          await apiFetch("/api/user/delete-image", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -73,7 +74,7 @@ export default function Profile() {
         const imageFormData = new FormData();
         imageFormData.append("image", selectedFile);
 
-        const imgRes = await fetch("/api/user/upload-image", {
+        const imgRes = await apiFetch("/api/user/upload-image", {
           method: "POST",
           credentials: "include",
           body: imageFormData,
@@ -96,7 +97,7 @@ export default function Profile() {
       }
       console.log(updatedData, 'updatedata===>>>>')
       // 3. Send all data (input fields + avatar) to the update API
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      const res = await apiFetch(`/api/user/update/${currentUser._id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -145,7 +146,7 @@ export default function Profile() {
   const handleDeleteUser = async () => {
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+      const res = await apiFetch(`/api/user/delete/${currentUser._id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -163,7 +164,7 @@ export default function Profile() {
 
     try {
       dispatch(signoutUserStart());
-      const res = await fetch("/api/auth/signout")
+      const res = await apiFetch("/api/auth/signout")
       const data = await res.json();
       if (data.success === false) {
         dispatch(signoutUserFailure(data.message));
@@ -178,7 +179,7 @@ export default function Profile() {
 
   const handleShowListings = async () => {
     try {
-      const res = await fetch(`/api/user/listings/${currentUser._id}`)
+      const res = await apiFetch(`/api/user/listings/${currentUser._id}`)
       const data = await res.json();
       if (data.success === false) {
         showListingsError(true)
@@ -193,7 +194,7 @@ export default function Profile() {
 
   const handleListingDelete = async (listingId) => {
     try {
-      const res = await fetch(`/api/listing/delete/${listingId}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/listing/delete/${listingId}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success === false) {
         console.log(data.message);

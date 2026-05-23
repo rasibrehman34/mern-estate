@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { apiFetch } from "../utils/api.js";
 
 export default function Contact({ listing }) {
   const [Landlord, setLandlord] = useState(null);
@@ -9,7 +10,7 @@ export default function Contact({ listing }) {
     const fetchLandlord = async () => {
       try {
         if (!listing?.userRef) return;
-        const res = await fetch(`/api/user/${listing.userRef}`);
+        const res = await apiFetch(`/api/user/${listing.userRef}`);
         const data = await res.json();
         if (data.success === false) {
           console.log("could not fetch landlord data");

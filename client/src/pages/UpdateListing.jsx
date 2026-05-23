@@ -1,6 +1,7 @@
 import React, { useState , useEffect} from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { apiFetch } from "../utils/api.js";
 
 export default function UpdateListing() {
   const { currentUser } = useSelector((state) => state.user);
@@ -31,7 +32,7 @@ export default function UpdateListing() {
   useEffect(() => {
     const fetchListing = async () => {
         const listingId = params.listingId;
-        const res = await fetch(`/api/listing/get/${listingId}`);
+        const res = await apiFetch(`/api/listing/get/${listingId}`);
         const data = await res.json();
         if (data.success === false ) {
             console.log(data.message)
@@ -67,7 +68,7 @@ export default function UpdateListing() {
       imageFormData.append("image", file);
 
       try {
-        const imgRes = await fetch("/api/listing/upload-image", {
+        const imgRes = await apiFetch("/api/listing/upload-image", {
           method: "POST",
           credentials: "include",
           body: imageFormData,
@@ -139,7 +140,7 @@ export default function UpdateListing() {
       }
       setUploading(false);
 
-      const res = await fetch(`/api/listing/update/${params.listingId}`, {
+      const res = await apiFetch(`/api/listing/update/${params.listingId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

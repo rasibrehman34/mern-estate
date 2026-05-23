@@ -1,6 +1,7 @@
-import User from '../models/user.model.js'
+import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
+import { authCookieOptions } from '../utils/cookieOptions.js';
 import jwt from 'jsonwebtoken';
 
 
@@ -25,7 +26,7 @@ export const signin = async (req, res, next) => {
          if(!validPassword) return next(errorHandler(401, "Wrong Credentials!"));
          const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET );
          const {password: pass, ...rest} = validUser._doc
-         res.cookie('access_token' , token, { httpOnly: true}).status(200).json(rest)      
+         res.cookie('access_token', token, authCookieOptions).status(200).json(rest);      
     } catch (error) {
         next(error);
     }    
@@ -37,7 +38,7 @@ export const google = async (req, res, next) => {
         if (user) {
             const token = jwt.sign({ id: user._id}, process.env.JWT_SECRET )
             const { password: pass, ...rest } = user._doc
-            res.cookie('access_token', token, {httpOnly: true}).status(200).json(rest)
+            res.cookie('access_token', token, authCookieOptions).status(200).json(rest);
         } else {
             const generatedPassword = Math.random().toString(36).slice(-8) +  Math.random().toString(36).slice(-8);
             const hashedPassword = bcryptjs.hashSync(generatedPassword, 10)
@@ -45,8 +46,7 @@ export const google = async (req, res, next) => {
             await newUser.save();
             const token = jwt.sign({ id: newUser._id}, process.env.JWT_SECRET );
             const { password: pass, ...rest } = newUser._doc
-            res.cookie('access_token', token, {httpOnly: true}).status(200).json(rest)
-
+            res.cookie('access_token', token, authCookieOptions).status(200).json(rest);
         }
         
     } catch (error) {
@@ -58,7 +58,7 @@ export const google = async (req, res, next) => {
 
 export const signout = async (req,res,next) => {
     try {
-        res.clearCookie('access_token')
+        res.clearCookie('access_token', { path: '/' });
         res.status(200).json('User has been Logged Out')
         
     } catch (error) {
