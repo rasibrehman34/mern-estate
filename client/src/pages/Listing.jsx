@@ -109,8 +109,14 @@ export default function Listing() {
                 <FaChair className="inline-block text-lg" /> {listing.furnished ? "Furnished" : "Not Furnished"}
               </li>
             </ul>
-            {currentUser && listing.userRef === currentUser._id && !contact && (
+            {currentUser && listing.userRef !== currentUser._id && !contact && (
               <button onClick={() => setContact(true)} className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95">Contact Landlord</button>
+            )}
+            {!currentUser && !contact && (
+              <p className="text-red-700 font-semibold"><span className="font-bold text-black">Note: </span>Please <a href="/sign-in" className="underline text-blue-500">sign in</a> to contact the landlord</p>
+            )}
+            {listing.userRef === currentUser?._id && (
+              <p className="text-blue-700 font-semibold">This is your listing</p>
             )}
             {contact && <Contact listing={listing} />}
           </div>
